@@ -1,0 +1,23 @@
+{
+  "name": "mytin_nodejs",
+  "version": "1.0.0",
+  "description": "Back end for MYtinerary project",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UliKuch/Ubiqum_MYtinerary_BackEnd.git"
+  },
+  "author": "Uli Kuchelmeister <u.kuchelmeister.ubiqum@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UliKuch/Ubiqum_MYtinerary_BackEnd/issues"
+  },
+  "homepage": "https://github.com/UliKuch/Ubiqum_MYtinerary_BackEnd#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.7.3"
+  }
+}
