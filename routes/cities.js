@@ -2,10 +2,14 @@ const express = require("express");
 const router = express.Router();
 
 const cityModel = require("../model/cityModel")
+const itineraryModel = require("../model/itineraryModel")
 
+
+// GET test route
 module.exports = router.get("/test", (req, res) => {
   res.send({ msg: "Cities test route." })
 })
+
 
 // GET all cities
 module.exports = router.get("/all",
@@ -17,6 +21,34 @@ module.exports = router.get("/all",
       .catch(err => console.log(err));
   }
 );
+
+// GET specific city
+module.exports = router.get("/:name",
+	(req, res) => {
+      let cityRequested = req.params.name;
+      cityModel.findOne({ name: cityRequested })
+			.then(city => {
+        res.send(city)
+      })
+			.catch(err => console.log(err));
+});
+
+// GET itineraries for specific city
+module.exports = router.get("/:name/itineraries",
+	(req, res) => {
+      let cityRequested = req.params.name;
+      console.log(cityRequested)
+      cityModel.findOne({ name: cityRequested })
+			.then(city => {
+        itineraryModel.find({ city: city.name })
+				.then(itineraries => {
+          res.send(itineraries)
+        })
+        .catch(err => console.log(err))
+			})
+			.catch(err => console.log(err));
+});
+
 
 // POST new city
 module.exports = router.post("/",
@@ -32,6 +64,7 @@ module.exports = router.post("/",
     cityModel.find({name: newCity.name})
     .then(data => {
       if (data.length > 0) {
+        console.log(data);
         res.status(409).send("A city with this name already exists.");
       
       // if no city with that name exists, add it to db
