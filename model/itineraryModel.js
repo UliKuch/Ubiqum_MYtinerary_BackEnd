@@ -4,7 +4,6 @@ const itinerarySchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
-    unique: true
   },
   city: {
     type: String,

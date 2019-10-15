@@ -3,6 +3,7 @@ const router = express.Router();
 
 const cityModel = require("../model/cityModel")
 const itineraryModel = require("../model/itineraryModel")
+const activityModel = require("../model/activityModel")
 
 
 // GET test route
@@ -36,19 +37,30 @@ module.exports = router.get("/:name",
 // GET itineraries for specific city
 module.exports = router.get("/:name/itineraries",
 	(req, res) => {
-      let cityRequested = req.params.name;
-      console.log(cityRequested)
-      cityModel.findOne({ name: cityRequested })
-			.then(city => {
-        itineraryModel.find({ city: city.name })
-				.then(itineraries => {
-          res.send(itineraries)
-        })
-        .catch(err => console.log(err))
-			})
-			.catch(err => console.log(err));
+    const cityRequested = req.params.name;
+    cityModel.findOne({ name: cityRequested })
+    .then(city => {
+      itineraryModel.find({ city: city.name })
+      .then(itineraries => {
+        res.send(itineraries)
+      })
+      .catch(err => console.log(err))
+    })
+    .catch(err => console.log(err));
 });
 
+// GET activities for specific itinerary
+module.exports = router.get("/:name/itineraries/:itinerary",
+  (req, res) => {
+    const cityRequested = req.params.name;
+    const itinRequested = req.params.itinerary;
+    // no checks whether city and itinerary are in database necessary
+    activityModel.find({ city: cityRequested, itinerary: itinRequested })
+      .then(activities => {
+        res.send(activities)
+      })
+      .catch(err => console.log(err))
+})
 
 // POST new city
 module.exports = router.post("/",
