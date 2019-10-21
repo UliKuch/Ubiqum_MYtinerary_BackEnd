@@ -23,6 +23,8 @@ app.listen(port, () => {
 
 app.use("/cities", require("./routes/cities"));
 
+app.use("/user", require("./routes/user"));
+
 mongoose.connect(db, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
   .then(() => console.log("Connection to Mongo DB established"))
   .catch(err => console.log(err));

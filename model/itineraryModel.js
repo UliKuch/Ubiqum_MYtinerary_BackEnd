@@ -10,7 +10,7 @@ const itinerarySchema = new mongoose.Schema({
     required: true
   },
   profilePicuture: {
-   type: String 
+    type: String 
   },
   author: {
     type: String
