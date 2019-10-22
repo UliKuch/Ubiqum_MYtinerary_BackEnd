@@ -25,13 +25,10 @@ module.exports = router.post("/", [
     return res.status(422).json({ errors: errors.array() })
   }
 
-  // hash password
-  let hashedPassword;
-  bcrypt.genSalt(saltRounds, function(err, salt) {
-    bcrypt.hash(req.body.password, salt, function(err, hash) {
-        hashedPassword = hash;
-    });
-  });
+  // hash password (sync)
+  // sync might block event loop, but hashed pw is needed for post request
+  // (see https://www.npmjs.com/package/bcrypt)
+  const hashedPassword = bcrypt.hashSync(req.body.password, saltRounds);
 
   // create new user object from POST request, following schema
   const newUser = new userModel({
