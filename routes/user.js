@@ -10,12 +10,19 @@ const saltRounds = 10;
 // express-validator
 const { check, validationResult } = require('express-validator');
 
+// JWT
+const jwt = require("jsonwebtoken");
+
 // secret key for JWT
 const key = require('../keys');
-const jwt = require("jsonwebtoken")
+
+// passport
+const passport = require("passport");
 
 
-// POST new user
+// ********** routes **********
+
+// -------------------- POST new user --------------------
 module.exports = router.post("/", [
 
   // Server-side validation
@@ -67,7 +74,7 @@ module.exports = router.post("/", [
 )
 
 
-// POST login
+// -------------------- POST login --------------------
 module.exports = router.post("/login", [
 
   // Server-side validation
@@ -138,22 +145,15 @@ module.exports = router.post("/login", [
 }
 )
 
-// passport and passport middleware
-const app = express();
-const passport = require("passport");
-// passport middleware
-app.use(passport.initialize());
-// passport configuration
-require("../passport.js")(passport);
 
-
-// GET check if user is logged in
+// ---------- GET check if user is logged in ----------
 module.exports = router.get("/",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     userModel
       .findOne({ _id: req.user.id })
       .then(user => {
+        console.log(user.username + " is logged in.")
         res.json(user);
       })
       .catch(err => res.status(404).json({ error: "User does not exist!" }));

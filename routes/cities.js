@@ -6,13 +6,16 @@ const itineraryModel = require("../model/itineraryModel")
 const activityModel = require("../model/activityModel")
 
 
-// GET test route
+// ********** routes **********
+
+
+// -------------------- GET test route --------------------
 module.exports = router.get("/test", (req, res) => {
   res.send({ msg: "Cities test route." })
 })
 
 
-// GET all cities
+// -------------------- GET all cities --------------------
 module.exports = router.get("/all",
   (req, res) => {
     cityModel.find({})
@@ -23,7 +26,8 @@ module.exports = router.get("/all",
   }
 );
 
-// GET specific city
+
+// -------------------- GET specific city --------------------
 module.exports = router.get("/:name",
 	(req, res) => {
       let cityRequested = req.params.name;
@@ -34,7 +38,8 @@ module.exports = router.get("/:name",
 			.catch(err => console.log(err));
 });
 
-// GET itineraries for specific city
+
+// ---------- GET itineraries for specific city ----------
 module.exports = router.get("/:name/itineraries",
 	(req, res) => {
     const cityRequested = req.params.name;
@@ -49,7 +54,8 @@ module.exports = router.get("/:name/itineraries",
     .catch(err => console.log(err));
 });
 
-// GET activities for specific itinerary
+
+// ---------- GET activities for specific itinerary ----------
 module.exports = router.get("/:name/itineraries/:itinerary",
   (req, res) => {
     const cityRequested = req.params.name;
@@ -62,7 +68,8 @@ module.exports = router.get("/:name/itineraries/:itinerary",
       .catch(err => console.log(err))
 })
 
-// POST new city
+
+// -------------------- POST new city --------------------
 module.exports = router.post("/",
   (req, res) => {
 
