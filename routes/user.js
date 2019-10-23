@@ -14,6 +14,7 @@ const { check, validationResult } = require('express-validator');
 const key = require('../keys');
 const jwt = require("jsonwebtoken")
 
+
 // POST new user
 module.exports = router.post("/", [
 
@@ -65,6 +66,7 @@ module.exports = router.post("/", [
 }
 )
 
+
 // POST login
 module.exports = router.post("/login", [
 
@@ -79,7 +81,7 @@ module.exports = router.post("/login", [
     return res.status(422).json({ errors: errors.array() })
   }
 
-  // create new user object from POST request, following schema
+  // store data from request in variables
   const username = req.body.username;
   const plaintextPassword = req.body.password;
 
@@ -89,11 +91,11 @@ module.exports = router.post("/login", [
     
     // send error if username does not exist
     if (data.length < 1) {
-      console.log(user);
+      console.log(data);
       res.status(404).send("User not found in database.");
     }
     
-    // set user as first object in data array
+    // store user in variable
     const user = data[0];
 
     // sync check if pw is correct
@@ -107,7 +109,7 @@ module.exports = router.post("/login", [
 
     // create JWT payload
     const payload = {
-      _id: user._id,
+      id: user._id,
       username: user.username,
       userImage: user.userImage
     };
@@ -135,3 +137,25 @@ module.exports = router.post("/login", [
   })
 }
 )
+
+// passport and passport middleware
+const app = express();
+const passport = require("passport");
+// passport middleware
+app.use(passport.initialize());
+// passport configuration
+require("../passport.js")(passport);
+
+
+// GET check if user is logged in
+module.exports = router.get("/",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    userModel
+      .findOne({ _id: req.user.id })
+      .then(user => {
+        res.json(user);
+      })
+      .catch(err => res.status(404).json({ error: "User does not exist!" }));
+  }
+);
