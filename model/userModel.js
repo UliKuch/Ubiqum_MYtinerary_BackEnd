@@ -1,9 +1,13 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  username: {
+  email: {
     type: String,
     required: true,
+    unique: true
+  },
+  username: {
+    type: String,
     unique: true
   },
   firstName: {
@@ -14,17 +18,17 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  googleLogin: {
+    type: Boolean
+  },
   password: {
     type: String,
-    required: true
+    // Only required if no google login
+    // see https://github.com/Automattic/mongoose/issues/5119
+    required: function() {return !this.googleLogin},
   },
   userImage: {
     type: String
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true
   },
   country: {
     type: String

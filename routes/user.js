@@ -23,6 +23,7 @@ const passport = require("passport");
 // ********** routes **********
 
 // -------------------- POST new user --------------------
+// send req from front end's create user page
 module.exports = router.post("/", [
 
   // Server-side validation
@@ -75,6 +76,10 @@ module.exports = router.post("/", [
 
 
 // -------------------- POST login --------------------
+// req header: Content-Type : application/x-www-form-urlencoded
+// req body:
+// email : *email*
+// password : *password_plaintext*
 module.exports = router.post("/login", [
 
   // Server-side validation
@@ -89,14 +94,14 @@ module.exports = router.post("/login", [
   }
 
   // store data from request in variables
-  const username = req.body.username;
+  const email = req.body.email;
   const plaintextPassword = req.body.password;
 
-  // check if username exist
-  userModel.find({ username: username })
+  // check if email exists
+  userModel.find({ email: email })
   .then(data => {
     
-    // send error if username does not exist
+    // send error if email does not exist
     if (data.length < 1) {
       console.log(data);
       res.status(404).send("User not found in database.");
@@ -117,7 +122,7 @@ module.exports = router.post("/login", [
     // create JWT payload
     const payload = {
       id: user._id,
-      username: user.username,
+      email: user.email,
       userImage: user.userImage
     };
     const options = {expiresIn: 2592000};
@@ -147,15 +152,53 @@ module.exports = router.post("/login", [
 
 
 // ---------- GET check if user is logged in ----------
+// req headers:
+// Content-Type: application/json
+// Authorization: bearer *token*
 module.exports = router.get("/",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     userModel
       .findOne({ _id: req.user.id })
       .then(user => {
-        console.log(user.username + " is logged in.")
+        console.log(user.email + " is logged in.")
         res.json(user);
       })
       .catch(err => res.status(404).json({ error: "User does not exist!" }));
   }
 );
+
+
+// -------------------- POST logout --------------------
+module.exports = router.post("/logout",
+  // passport.aut henticate("jwt", { session: false }),
+  (req, res) => {
+
+    // TODO: Implement client side logout (delete token stored client side)
+        // store token client side first (in login POST)
+
+    // TODO: (Later) Add a blacklist collection to db and implement proper logout
+  }
+)
+
+
+// -------------------- Google login --------------------
+module.exports = router.get("/google",
+  passport.authenticate('google', { scope: ['profile'] }),
+);
+
+
+
+// -------------------- Goolge redirect --------------------
+module.exports = router.get("/google/redirect", (req, res) => {
+  console.log("google redirect route");
+
+
+
+  // TODO: create JWT (= login)
+    // add to be first or in passport.js? (here is probably better)
+
+
+
+  res.redirect("http://localhost:3000");
+})

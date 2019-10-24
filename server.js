@@ -24,7 +24,7 @@ app.use(cors());
 // passport middleware
 app.use(passport.initialize());
 // passport configuration
-require("./passport")(passport);
+require("./passport");
 
 // routes
 app.use("/cities", require("./routes/cities"));
