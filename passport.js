@@ -8,55 +8,79 @@ const passport = require("passport");
 const User = require("./model/userModel");
 const key = require("./keys");
 
-// options object
+
+// options object for jwt
 const opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = key.secret;
 
 // JWT strategy
 module.exports = passport.use("jwt",
-    new JwtStrategy(opts, (jwt_payload, done) => {
-      User.findById(jwt_payload.id)
-      .then(user => {
-        if (user) {
-          return done(null, user);
-        }
-        return done(null, false);
-      })
-      .catch(err => console.log(err));
+  new JwtStrategy(opts, (jwt_payload, done) => {
+    User.findById(jwt_payload.id)
+    .then(user => {
+      if (user) {
+        return done(null, user);
+      }
+      return done(null, false);
     })
-  )
+    .catch(err => console.log(err));
+  })
+)
 
+
+// options object for google
+const googleOpts = {};
+googleOpts.clientID = key.googleOAuthClientID;
+googleOpts.clientSecret = key.googleOAuthClientSecret;
+googleOpts.callbackURL = "http://localhost:5000/user/google/redirect";
 
 // Google strategy
 module.exports = passport.use("google",
-    new GoogleStrategy({
-      clientID: key.googleOAuthClientID,
-      clientSecret: key.googleOAuthClientSecret,
-      callbackURL: "http://localhost:5000/user/google/redirect"
-    },
-    function(accessToken, refreshToken, profile, cb) {
+  new GoogleStrategy(googleOpts,
+  async function(accessToken, refreshToken, profile, cb) {
+  // the functions part is not accessed by the google login route,
+  // but by the passport call in the redirect route
+  // bec only the redirect call includes user data
 
-      console.log("passport");
+    // store user values received from google 
+    const lastName = profile.name.familyName
+    const firstName= profile.name.givenName
+    const userImage = profile.photos[0].value
+    const email = profile.emails[0].value
+    
+    try {
+      // values for finding/creating user in db
+      const filter = { email: email };
+      const update = {
+        firstName: firstName,
+        lastName: lastName,
+        userImage: userImage,
+        googleLogin: true,
+      }
+      
+      // Check if user already exist (throws 0 or 1)
+      const checkIfNew = await User.countDocuments(filter);
+    
+      // If user does not exist yet, user will be created
+      // if user already exists, his entry will be *updated*
+      // according to update above.
+      let user = await User.findOneAndUpdate(filter, update, {
+        new: true,
+        upsert: true // Make this update into an upsert
+      });
 
+      // if user exists, it gets handed to the function part
+      // of the redirect route
+      if (user) {
+        return cb(null, user)
+      } else {
+        return cb(null, false)
+      }
 
-      // TODO: search user in DB.
-        // add if necessary?
-        // add already here? what if login w/ google fails?
-        // then he would not be able to create account w/o google,
-        // because the email would already be in db
-
-      // also: no verification email -> problem? registering w/
-        // s.o. elses email, then he logs in with google
-
-
-
-      // User.findOrCreate({ googleId: profile.id }, function (err, user) {
-      //   return cb(err, user);
-      // });
-
-
-
-    })
-  )
+    } catch (error) {
+      console.error(error);
+    }
+  })
+)
 

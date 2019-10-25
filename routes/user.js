@@ -171,7 +171,7 @@ module.exports = router.get("/",
 
 // -------------------- POST logout --------------------
 module.exports = router.post("/logout",
-  // passport.aut henticate("jwt", { session: false }),
+  // passport.authenticate("jwt", { session: false }),
   (req, res) => {
 
     // TODO: Implement client side logout (delete token stored client side)
@@ -184,21 +184,31 @@ module.exports = router.post("/logout",
 
 // -------------------- Google login --------------------
 module.exports = router.get("/google",
-  passport.authenticate('google', { scope: ['profile'] }),
+  passport.authenticate("google", {
+    session: false,
+    scope: ["profile", "email"]
+  }),
+  // accesses the google passport strategy, which calls the callback URL
+  // leading to the google redirect route
 );
 
 
-
 // -------------------- Goolge redirect --------------------
-module.exports = router.get("/google/redirect", (req, res) => {
-  console.log("google redirect route");
-
-
+// this route will be accessed by the google passport strategy's callback URL
+// when the strategy is called by the google login route
+module.exports = router.get("/google/redirect",
+  passport.authenticate("google", {
+    session: false,
+    // TODO: if login was attempted with login page, redirect there
+    failureRedirect: "http://localhost:3000/user/create-account"
+  }),
+  (req, res) => {
+    console.log("google redirect route");
 
   // TODO: create JWT (= login)
-    // add to be first or in passport.js? (here is probably better)
+    // add to db first or in passport.js?
 
 
-
-  res.redirect("http://localhost:3000");
-})
+    res.redirect("http://localhost:3000");
+  }
+)

@@ -36,6 +36,6 @@ app.listen(port, () => {
 });
 
 // connecting to db
-mongoose.connect(db, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true })
+mongoose.connect(db, { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false })
   .then(() => console.log("Connection to Mongo DB established"))
   .catch(err => console.log(err));
