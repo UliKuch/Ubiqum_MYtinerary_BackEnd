@@ -202,13 +202,30 @@ module.exports = router.get("/google/redirect",
     // TODO: if login was attempted with login page, redirect there
     failureRedirect: "http://localhost:3000/user/create-account"
   }),
+
   (req, res) => {
-    console.log("google redirect route");
+    
+    // create JWT payload
+    const payload = {
+      id: req.user._id,
+      email: req.user.email,
+      userImage: req.user.userImage
+    };
+    const options = {expiresIn: 2592000};
 
-  // TODO: create JWT (= login)
-    // add to db first or in passport.js?
-
-
-    res.redirect("http://localhost:3000");
+    // sign token
+    jwt.sign(
+      payload,
+      key.secret,
+      options,
+      (err, token) => {
+        if (err) {
+          // TODO: think of a way to display error. create error page?
+          res.status(500).redirect("http://localhost:3000");
+        } else {
+          res.status(200).redirect("http://localhost:3000/logged_in/" + token)
+        }
+      }
+    );
   }
 )

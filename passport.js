@@ -71,7 +71,7 @@ module.exports = passport.use("google",
       });
 
       // if user exists, it gets handed to the function part
-      // of the redirect route
+      // of the redirect route (as req.user)
       if (user) {
         return cb(null, user)
       } else {
