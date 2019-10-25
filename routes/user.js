@@ -169,17 +169,18 @@ module.exports = router.get("/",
 );
 
 
-// -------------------- POST logout --------------------
-module.exports = router.post("/logout",
-  // passport.authenticate("jwt", { session: false }),
-  (req, res) => {
+// // ********** no server-side logout implemented yet **********
 
-    // TODO: Implement client side logout (delete token stored client side)
-        // store token client side first (in login POST)
+// // -------------------- POST logout --------------------
+// // called with token to blacklist
+// module.exports = router.post("/logout",
+//   passport.authenticate("jwt", { session: false }),
+//   (req, res) => {
 
-    // TODO: (Later) Add a blacklist collection to db and implement proper logout
-  }
-)
+//     // TODO: Add a blacklist collection to db and implement server-side logout
+
+//   }
+// )
 
 
 // -------------------- Google login --------------------
@@ -204,7 +205,7 @@ module.exports = router.get("/google/redirect",
   }),
 
   (req, res) => {
-    
+
     // create JWT payload
     const payload = {
       id: req.user._id,
