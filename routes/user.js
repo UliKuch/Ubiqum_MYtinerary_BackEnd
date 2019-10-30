@@ -146,6 +146,10 @@ module.exports = router.post("/login", [
         }
       }
     );
+
+    // change isLoggedIn in DB to true
+    user.isLoggedIn = true;
+    user.save();
   })
 }
 )
@@ -169,18 +173,24 @@ module.exports = router.get("/",
 );
 
 
-// // ********** no server-side logout implemented yet **********
-
-// // -------------------- POST logout --------------------
-// // called with token to blacklist
-// module.exports = router.post("/logout",
-//   passport.authenticate("jwt", { session: false }),
-//   (req, res) => {
-
-//     // TODO: Add a blacklist collection to db and implement server-side logout
-
-//   }
-// )
+// -------------------- POST logout --------------------
+// called with token to log out
+module.exports = router.post("/logout",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    userModel
+      .findById(req.user.id)
+      .then(user => {
+        user.isLoggedIn = false;
+        user.save()
+        .then(data => {
+            res.status(200).send()
+          }
+        )
+      })
+      .catch(err => res.status(500).send(err))
+  }
+)
 
 
 // -------------------- Google login --------------------
@@ -194,7 +204,7 @@ module.exports = router.get("/google",
 );
 
 
-// -------------------- Goolge redirect --------------------
+// -------------------- Google redirect --------------------
 // this route will be accessed by the google passport strategy's callback URL
 // when the strategy is called by the google login route
 module.exports = router.get("/google/redirect",
@@ -224,6 +234,7 @@ module.exports = router.get("/google/redirect",
           // TODO: think of a way to display error. create error page?
           res.status(500).redirect("http://localhost:3000");
         } else {
+          // redirect to landing page with token stored in url
           res.status(200).redirect("http://localhost:3000/logged_in/" + token)
         }
       }

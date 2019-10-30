@@ -57,6 +57,7 @@ module.exports = passport.use("google",
         lastName: lastName,
         userImage: userImage,
         googleLogin: true,
+        isLoggedIn: true
       }
       
       // Check if user already exist (throws 0 or 1)

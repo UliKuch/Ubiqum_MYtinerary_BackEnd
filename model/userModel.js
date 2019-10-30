@@ -33,6 +33,9 @@ const userSchema = new mongoose.Schema({
   country: {
     type: String
   },
+  isLoggedIn: {
+    type: Boolean
+  }
 });
 
 module.exports = mongoose.model('user', userSchema);
