@@ -11,7 +11,7 @@ const activityModel = require("../model/activityModel")
 
 // -------------------- GET test route --------------------
 module.exports = router.get("/test", (req, res) => {
-  res.send({ msg: "Cities test route." })
+  return res.send({ msg: "Cities test route." })
 })
 
 
@@ -20,7 +20,7 @@ module.exports = router.get("/all",
   (req, res) => {
     cityModel.find({})
       .then(files => {
-        res.send(files)
+        return res.send(files)
       })
       .catch(err => console.log(err));
   }
@@ -33,7 +33,7 @@ module.exports = router.get("/:name",
       let cityRequested = req.params.name;
       cityModel.findOne({ name: cityRequested })
 			.then(city => {
-        res.send(city)
+        return res.send(city)
       })
 			.catch(err => console.log(err));
 });
@@ -47,7 +47,7 @@ module.exports = router.get("/:name/itineraries",
     .then(city => {
       itineraryModel.find({ city: city.name })
       .then(itineraries => {
-        res.send(itineraries)
+        return res.send(itineraries)
       })
       .catch(err => console.log(err))
     })
@@ -63,7 +63,7 @@ module.exports = router.get("/:name/itineraries/:itinerary",
     // no checks whether city and itinerary are in database necessary
     activityModel.find({ city: cityRequested, itinerary: itinRequested })
       .then(activities => {
-        res.send(activities)
+        return res.send(activities)
       })
       .catch(err => console.log(err))
 })
@@ -84,16 +84,16 @@ module.exports = router.post("/",
     .then(data => {
       if (data.length > 0) {
         console.log(data);
-        res.status(409).send("A city with this name already exists.");
+        return res.status(409).send("A city with this name already exists.");
       
       // if no city with that name exists, add it to db
       } else {
         newCity.save()
         .then(city => {
-          res.send(city)
+          return res.send(city)
         })
         .catch(err => {
-          res.status(500).send("Server error")
+          return res.status(500).send("Server error")
         }) 
       }
     })

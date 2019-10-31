@@ -35,6 +35,9 @@ const userSchema = new mongoose.Schema({
   },
   isLoggedIn: {
     type: Boolean
+  },
+  favoriteItineraries: {
+    type: [String]
   }
 });
 

@@ -59,13 +59,13 @@ module.exports = router.post("/", [
   .then(data => {
     if (data.length > 0) {
       console.log(data);
-      res.status(409).send("A user with this username and/or this email already exists.");
+      return res.status(409).send("A user with this username and/or this email already exists.");
     }
     
     // if username and email do not exist yet, add newUser to db
     newUser.save()
     .then(user => {
-      res.send(user)
+      return res.send(user)
     })
     .catch(err => {
       res.status(500).send("Server error")
@@ -104,7 +104,7 @@ module.exports = router.post("/login", [
     // send error if email does not exist
     if (data.length < 1) {
       console.log(data);
-      res.status(404).send("User not found in database.");
+      return res.status(404).send("User not found in database.");
     }
     
     // store user in variable
@@ -115,7 +115,7 @@ module.exports = router.post("/login", [
     console.log("Checking password...");
     if (!bcrypt.compareSync(plaintextPassword, user.password)) {
       console.log("Password incorrect");
-      res.status(401).send("Password is incorrect.");
+      return res.status(401).send("Password is incorrect.");
     }
     console.log("Password correct");
 
@@ -184,7 +184,7 @@ module.exports = router.post("/logout",
         user.isLoggedIn = false;
         user.save()
         .then(data => {
-            res.status(200).send()
+            return res.status(200).send()
           }
         )
       })
@@ -239,5 +239,57 @@ module.exports = router.get("/google/redirect",
         }
       }
     );
+  }
+)
+
+
+// -------------------- POST favorite itineraries --------------------
+// called with token in header and itinerary title in body
+module.exports = router.post("/favorites",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    userModel
+      .findById(req.user.id)
+      .then(user => {
+
+        // check if user is logged in db-side
+        if (!user.isLoggedIn) {
+          return res.status(403).json("You are not logged in!")
+        }
+
+        // throw error if itinerary is already favorited
+        if (user.favoriteItineraries.includes(req.body.itineraryTitle)) {
+          return res.status(409).json("This itinerary is already favorited.");
+        }
+
+        // add itinerary to db
+        user.favoriteItineraries.push(req.body.itineraryTitle);
+        user.save();
+        
+        return res.status(200).json("Itinerary favorited.");
+      })
+      .catch(err => res.status(500).send(err))
+  }
+)
+
+
+// -------------------- GET favorite itineraries --------------------
+// called with token in header
+module.exports = router.get("/favorites",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    userModel
+      .findById(req.user.id)
+      .then(user => {
+
+        // check if user is logged in db-side
+        if (!user.isLoggedIn) {
+          return res.status(403).json("You are not logged in!")
+        }
+
+        // return array of favorite itineraries
+        return res.status(200).json(user.favoriteItineraries);
+      })
+      .catch(err => res.status(500).send(err))
   }
 )
