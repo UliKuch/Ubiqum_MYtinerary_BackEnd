@@ -245,7 +245,7 @@ module.exports = router.get("/google/redirect",
 
 // -------------------- POST favorite itineraries --------------------
 // called with token in header and itinerary title in body
-module.exports = router.post("/favorites",
+module.exports = router.post("/favoriteItineraries",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     userModel
@@ -257,9 +257,12 @@ module.exports = router.post("/favorites",
           return res.status(403).json("You are not logged in!")
         }
 
-        // throw error if itinerary is already favorited
+        // remove itinerary from favorites if it is already favorited
         if (user.favoriteItineraries.includes(req.body.itineraryTitle)) {
-          return res.status(409).json("This itinerary is already favorited.");
+          user.favoriteItineraries.splice(user.favoriteItineraries
+              .indexOf(req.body.itineraryTitle), 1);
+          user.save();
+          return res.status(200).json("Itinerary removed from favorites.");
         }
 
         // add itinerary to db
@@ -275,7 +278,7 @@ module.exports = router.post("/favorites",
 
 // -------------------- GET favorite itineraries --------------------
 // called with token in header
-module.exports = router.get("/favorites",
+module.exports = router.get("/favoriteItineraries",
   passport.authenticate("jwt", { session: false }),
   (req, res) => {
     userModel
