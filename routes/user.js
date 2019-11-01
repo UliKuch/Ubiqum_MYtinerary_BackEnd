@@ -123,7 +123,8 @@ module.exports = router.post("/login", [
     const payload = {
       id: user._id,
       email: user.email,
-      userImage: user.userImage
+      userImage: user.userImage,
+      username: user.username
     };
     const options = {expiresIn: 2592000};
 
@@ -220,7 +221,8 @@ module.exports = router.get("/google/redirect",
     const payload = {
       id: req.user._id,
       email: req.user.email,
-      userImage: req.user.userImage
+      userImage: req.user.userImage,
+      username: req.user.username
     };
     const options = {expiresIn: 2592000};
 
