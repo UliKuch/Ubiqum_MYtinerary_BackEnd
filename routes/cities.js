@@ -1,9 +1,12 @@
 const express = require("express");
 const router = express.Router();
 
-const cityModel = require("../model/cityModel")
-const itineraryModel = require("../model/itineraryModel")
-const activityModel = require("../model/activityModel")
+const cityModel = require("../model/cityModel");
+const itineraryModel = require("../model/itineraryModel");
+const activityModel = require("../model/activityModel");
+const userModel = require("../model/userModel");
+
+const passport = require("passport");
 
 
 // ********** routes **********
@@ -99,3 +102,65 @@ module.exports = router.post("/",
     })
   }
 );
+
+
+// --------------- GET comments for itinerary ---------------
+module.exports = router.get("/:name/itineraries/:itinerary/comments",
+  // comments are visible for all users, logged in or not
+  (req, res) => {
+    const cityRequested = req.params.name;
+    const itinRequested = req.params.itinerary;
+    itineraryModel.findOne({
+      title: itinRequested,
+      city: cityRequested
+    })
+      .then(itin => {
+        return res.status(200).send(itin.comments);
+      })
+      .catch(err => res.status(500).send("An error occured."))
+  }
+)
+
+
+// -------------------- POST new comment --------------------
+// called with token in header and commentBody in body
+module.exports = router.post("/:name/itineraries/:itinerary/comment",
+  passport.authenticate("jwt", { session: false}),
+  async (req, res) => {
+    const cityRequested = req.params.name;
+    const itinRequested = req.params.itinerary;
+
+    try {
+      const user = await userModel.findById(req.user.id);
+
+      // check if user is logged-in db-side
+      if (!user.isLoggedIn) {
+        return res.status(403).json("You have to be logged in to comment.")
+      };
+
+      // find itinerary in db
+      const itinerary = await itineraryModel.findOne({
+        title: itinRequested,
+        city: cityRequested
+      })
+
+      // create new comment from req and user data
+      const newComment = {
+        body: req.body.commentBody,
+        author: user._id,
+        date: Date.now()
+      }
+
+      // push new comment to db
+      await itinerary.comments.push(newComment);
+      await itinerary.save();
+
+      return res.status(200).json("Comment has been added.")
+    }
+    catch (error) {
+      console.log(error);
+      return res.status(500).json("An error occured.")
+    }
+  }
+)
+

@@ -29,7 +29,21 @@ const itinerarySchema = new mongoose.Schema({
   },
   hashtags: {
     type: [String]
-  }
+  },
+  comments: [{
+    body: {
+      type: String,
+      required: true
+    },
+    author: {
+      type: String,
+      required: true
+    },
+    date: {
+      type: Date,
+      required: true
+    }
+  }]
 });
 
 module.exports = mongoose.model('itinerary', itinerarySchema);
