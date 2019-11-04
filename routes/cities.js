@@ -147,7 +147,9 @@ module.exports = router.post("/:name/itineraries/:itinerary/comment",
       // create new comment from req and user data
       const newComment = {
         body: req.body.commentBody,
-        author: user._id,
+        authorId: user._id,
+        authorUsername: user.username,
+        authorEmail: user.email,
         date: Date.now()
       }
 

@@ -35,9 +35,15 @@ const itinerarySchema = new mongoose.Schema({
       type: String,
       required: true
     },
-    author: {
+    authorId: {
       type: String,
       required: true
+    },
+    authorUsername: {
+      type: String
+    },
+    authorEmail: {
+      type: String
     },
     date: {
       type: Date,
