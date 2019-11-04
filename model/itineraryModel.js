@@ -48,6 +48,9 @@ const itinerarySchema = new mongoose.Schema({
     date: {
       type: Date,
       required: true
+    },
+    lastUpdateAt: {
+      type: Date
     }
   }]
 });

@@ -166,3 +166,43 @@ module.exports = router.post("/:name/itineraries/:itinerary/comment",
   }
 )
 
+
+// -------------------- PUT update comment --------------------
+// called with token in header and commentBody + commentId in body
+module.exports = router.put("/:name/itineraries/:itinerary/comment",
+  passport.authenticate("jwt", { session: false}),
+  async (req, res) => {
+    try {
+      const user = await userModel.findById(req.user.id);
+
+      // check if user is logged-in db-side
+      if (!user.isLoggedIn) {
+        return res.status(403).json("You have to be logged in to comment.");
+      };
+
+      // find itinerary and comment to update
+      const itinerary = await itineraryModel
+          .findOne({"comments._id": req.body.commentId})
+      const commentToUpdate = itinerary.comments.filter(comment => {
+        return comment._id.toString() === req.body.commentId
+      })[0]
+
+      // check if comment was posted by user sending the request
+      if (user._id != commentToUpdate.authorId) {
+        return res.status(401).json("You can only edit your own comments.");
+      }
+
+      // update and save comment
+      commentToUpdate.body = req.body.commentBody;
+      commentToUpdate.lastUpdateAt = Date.now();
+      await itinerary.save();
+
+      return res.status(200).json("Comment has been updated.")
+    }
+    catch (error) {
+      console.log(error);
+      return res.status(500).json("An error occured.")
+    }
+  }
+)
+
