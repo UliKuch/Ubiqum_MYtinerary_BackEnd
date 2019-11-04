@@ -177,15 +177,17 @@ module.exports = router.put("/:name/itineraries/:itinerary/comment",
 
       // check if user is logged-in db-side
       if (!user.isLoggedIn) {
-        return res.status(403).json("You have to be logged in to comment.");
+        return res.status(403).json("You have to be logged in to edit a comment.");
       };
 
       // find itinerary and comment to update
+      // alternative: use Mongoose array methods indexOf() and set()
+      // https://mongoosejs.com/docs/api.html#mongoosearray_MongooseArray-set
       const itinerary = await itineraryModel
           .findOne({"comments._id": req.body.commentId})
       const commentToUpdate = itinerary.comments.filter(comment => {
         return comment._id.toString() === req.body.commentId
-      })[0]
+      })[0];
 
       // check if comment was posted by user sending the request
       if (user._id != commentToUpdate.authorId) {
@@ -206,3 +208,41 @@ module.exports = router.put("/:name/itineraries/:itinerary/comment",
   }
 )
 
+// -------------------- DELETE comment --------------------
+// called with token in header and commentId in body
+module.exports = router.delete("/:name/itineraries/:itinerary/comment",
+  passport.authenticate("jwt", { session: false}),
+  async (req, res) => {
+    try {
+      const user = await userModel.findById(req.user.id);
+
+      // check if user is logged-in db-side
+      if (!user.isLoggedIn) {
+        return res.status(403).json("You have to be logged in to delete a comment.");
+      };
+
+      // find itinerary
+      const itinerary = await itineraryModel
+          .findOne({"comments._id": req.body.commentId})
+
+      // find comment to delete and
+      // check if comment was posted by user sending the request
+      const commentToDelete = itinerary.comments.filter(comment => {
+        return comment._id.toString() === req.body.commentId
+      })[0];
+      if (user._id != commentToDelete.authorId) {
+        return res.status(401).json("You can only delete your own comments.");
+      };
+
+      // delete comment
+      itinerary.comments.pull({ _id: req.body.commentId});
+      await itinerary.save();
+
+      return res.status(200).json("Comment has been deleted.")
+    }
+    catch (error) {
+      console.log(error);
+      return res.status(500).json("An error occured.")
+    }
+  }
+)
