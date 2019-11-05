@@ -209,10 +209,12 @@ module.exports = router.put("/:name/itineraries/:itinerary/comment",
 )
 
 // -------------------- DELETE comment --------------------
-// called with token in header and commentId in body
-module.exports = router.delete("/:name/itineraries/:itinerary/comment",
+// called with token in header and commentId in url
+module.exports = router.delete("/:name/itineraries/:itinerary/comment/:commentid",
   passport.authenticate("jwt", { session: false}),
   async (req, res) => {
+    const commentId = req.params.commentid;
+
     try {
       const user = await userModel.findById(req.user.id);
 
@@ -223,19 +225,19 @@ module.exports = router.delete("/:name/itineraries/:itinerary/comment",
 
       // find itinerary
       const itinerary = await itineraryModel
-          .findOne({"comments._id": req.body.commentId})
+          .findOne({"comments._id": commentId})
 
       // find comment to delete and
       // check if comment was posted by user sending the request
       const commentToDelete = itinerary.comments.filter(comment => {
-        return comment._id.toString() === req.body.commentId
+        return comment._id.toString() === commentId
       })[0];
       if (user._id != commentToDelete.authorId) {
         return res.status(401).json("You can only delete your own comments.");
       };
 
       // delete comment
-      itinerary.comments.pull({ _id: req.body.commentId});
+      itinerary.comments.pull({ _id: commentId});
       await itinerary.save();
 
       return res.status(200).json("Comment has been deleted.")
