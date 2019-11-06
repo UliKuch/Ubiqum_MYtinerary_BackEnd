@@ -248,3 +248,55 @@ module.exports = router.delete("/:name/itineraries/:itinerary/comment/:commentid
     }
   }
 )
+
+
+// -------------------- POST new itinerary --------------------
+// called with token in header and itinerary info in body:
+  // title, duration, price, hashtags (array of strings w/o hashtag symbol)
+module.exports = router.post("/:name/add-itinerary",
+passport.authenticate("jwt", { session: false}),
+async (req, res) => {
+  const cityRequested = req.params.name;
+
+  try {
+    const user = await userModel.findById(req.user.id);
+
+    // check if user is logged-in db-side
+    if (!user.isLoggedIn) {
+      return res.status(403).json("You have to be logged in to post an itinerary.")
+    };
+
+    // check if itinerary with desired name already exists
+    const itineraryInDb = await itineraryModel.find({
+      title: req.body.title,
+      city: cityRequested
+    })
+    if (itineraryInDb.length > 0) {
+      return res.status(403).json
+          ("An itinerary with this name belonging to this city already exists.")
+    }
+
+    // create new itinerary from req and user data
+    const newItin = new itineraryModel({
+      title: req.body.title,
+      city: cityRequested,
+      profilePicture: user.userImage,
+      authorId: user._id,
+      authorUsername: user.username,
+      authorEmail: user.email,
+      likes: 0,
+      duration: req.body.duration,
+      price: req.body.price,
+      hashtags: req.body.hashtags
+    })
+
+    await newItin.save();
+    
+    return res.status(200).json("Itinerary has been saved.")
+  }
+  catch (error) {
+    console.log(error);
+    return res.status(500).json("An error occured.")
+  }
+}
+)

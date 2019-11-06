@@ -10,10 +10,16 @@ const itinerarySchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  profilePicuture: {
+  profilePicture: {
     type: String 
   },
-  author: {
+  authorId: {
+    type: String
+  },
+  authorUsername: {
+    type: String
+  },
+  authorEmail: {
     type: String
   },
   likes: {
