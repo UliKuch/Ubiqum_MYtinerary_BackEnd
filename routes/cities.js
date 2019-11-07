@@ -300,3 +300,61 @@ async (req, res) => {
   }
 }
 )
+
+
+// -------------------- POST new activity --------------------
+// called with token in header and activity info in body:
+  // title, img
+module.exports = router.post("/:name/:itinerary/add-activity",
+  passport.authenticate("jwt", {session: false}),
+  async (req, res) => {
+    const cityRequested = req.params.name;
+    const itineraryRequested = req.params.itinerary;
+
+    try {
+      const user = await userModel.findById(req.user.id);
+
+      // check if user is logged-in db-side
+      if (!user.isLoggedIn) {
+        return res.status(403).json("You need to be logged in to post an activity.");
+      }
+
+      // check if user is author of itinerary belonging to activity
+      const itineraryInDb = await itineraryModel.findOne({
+        title: itineraryRequested
+      });
+      if (itineraryInDb.authorId !== req.user.id) {
+        return res.status(403).json("You can only add activities to itineraries you are the author of.");
+      }
+
+      // check if activity w/ title belonging to city & itin already exists in db
+      const activityInDb = await activityModel.find({
+        title: req.body.title,
+        city: cityRequested,
+        itinerary: itineraryRequested
+      });
+      if (activityInDb.length > 0) {
+        return res.status(403).json("An activity with this title already exists in this activity in this city.");
+      }
+
+      // create new activity from req
+      newActivity = new activityModel({
+        title: req.body.title,
+        city: cityRequested,
+        itinerary: itineraryRequested,
+        img: req.body.img
+      })
+
+      // save activity to db
+      await newActivity.save();
+
+      return res.status(200).json("Your activity has been saved.")
+
+    }
+    catch (error) {
+      console.log(error);
+      return res.status(500).json("An error occured.")
+    }
+
+  }
+)
