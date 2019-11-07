@@ -252,7 +252,7 @@ module.exports = router.delete("/:name/itineraries/:itinerary/comment/:commentid
 
 // -------------------- POST new itinerary --------------------
 // called with token in header and itinerary info in body:
-  // title, duration, price, hashtags (array of strings w/o hashtag symbol)
+  // title, duration, price, hashtags (string of hashtags)
 module.exports = router.post("/:name/add-itinerary",
 passport.authenticate("jwt", { session: false}),
 async (req, res) => {
@@ -276,6 +276,9 @@ async (req, res) => {
           ("An itinerary with this name belonging to this city already exists.")
     }
 
+    // remove #s, commas and semicolons from hashtag string and split it into array
+    let hashtags = req.body.hashtags.replace(/#|,|;/g, "").split(" ")
+
     // create new itinerary from req and user data
     const newItin = new itineraryModel({
       title: req.body.title,
@@ -287,7 +290,7 @@ async (req, res) => {
       likes: 0,
       duration: req.body.duration,
       price: req.body.price,
-      hashtags: req.body.hashtags
+      hashtags: hashtags
     })
 
     await newItin.save();
@@ -334,7 +337,7 @@ module.exports = router.post("/:name/:itinerary/add-activity",
         itinerary: itineraryRequested
       });
       if (activityInDb.length > 0) {
-        return res.status(403).json("An activity with this title already exists in this activity in this city.");
+        return res.status(403).json("An activity with this title already exists in this itinerary.");
       }
 
       // create new activity from req
@@ -355,6 +358,5 @@ module.exports = router.post("/:name/:itinerary/add-activity",
       console.log(error);
       return res.status(500).json("An error occured.")
     }
-
   }
 )
