@@ -277,7 +277,11 @@ async (req, res) => {
     }
 
     // remove #s, commas and semicolons from hashtag string and split it into array
-    let hashtags = req.body.hashtags.replace(/#|,|;/g, "").split(" ")
+    let hashtagsWithDuplicates = req.body.hashtags.replace(/#|,|;/g, "").split(" ")
+
+    // remove hashtag duplicates
+    const hashtags = hashtagsWithDuplicates.filter((item, index) => 
+        hashtagsWithDuplicates.indexOf(item) === index)
 
     // create new itinerary from req and user data
     const newItin = new itineraryModel({
