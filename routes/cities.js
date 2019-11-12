@@ -14,7 +14,7 @@ const passport = require("passport");
 
 // -------------------- GET test route --------------------
 module.exports = router.get("/test", (req, res) => {
-  return res.send({ msg: "Cities test route." })
+  return res.status(200).send({ msg: "Cities test route." })
 })
 
 
@@ -23,9 +23,11 @@ module.exports = router.get("/all",
   (req, res) => {
     cityModel.find({})
       .then(files => {
-        return res.send(files)
+        return res.status(200).send(files)
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        return res.status(500).send("Server error")
+      }) 
   }
 );
 
@@ -36,9 +38,11 @@ module.exports = router.get("/:name",
       let cityRequested = req.params.name;
       cityModel.findOne({ name: cityRequested })
 			.then(city => {
-        return res.send(city)
+        return res.status(200).send(city)
       })
-			.catch(err => console.log(err));
+      .catch(err => {
+        return res.status(500).send("Server error")
+      }) 
 });
 
 
@@ -50,11 +54,15 @@ module.exports = router.get("/:name/itineraries",
     .then(city => {
       itineraryModel.find({ city: city.name })
       .then(itineraries => {
-        return res.send(itineraries)
+        return res.status(200).send(itineraries)
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        return res.status(500).send("Server error")
+      }) 
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      return res.status(500).send("Server error")
+    }) 
 });
 
 
@@ -66,9 +74,11 @@ module.exports = router.get("/:name/itineraries/:itinerary",
     // no checks whether city and itinerary are in database necessary
     activityModel.find({ city: cityRequested, itinerary: itinRequested })
       .then(activities => {
-        return res.send(activities)
+        return res.status(200).send(activities)
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        return res.status(500).send("Server error")
+      }) 
 })
 
 
@@ -93,7 +103,7 @@ module.exports = router.post("/",
       } else {
         newCity.save()
         .then(city => {
-          return res.send(city)
+          return res.status(200).send(city)
         })
         .catch(err => {
           return res.status(500).send("Server error")

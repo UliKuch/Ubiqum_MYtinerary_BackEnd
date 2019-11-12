@@ -65,7 +65,7 @@ module.exports = router.post("/", [
     // if username and email do not exist yet, add newUser to db
     newUser.save()
     .then(user => {
-      return res.send(user)
+      return res.status(200).send(user)
     })
     .catch(err => {
       res.status(500).send("Server error")
@@ -167,7 +167,7 @@ module.exports = router.get("/",
       .findOne({ _id: req.user.id })
       .then(user => {
         console.log(user.email + " is logged in.")
-        res.json(user);
+        return res.status(200).json(user);
       })
       .catch(err => res.status(404).json({ error: "User does not exist!" }));
   }
