@@ -13,8 +13,11 @@ const { check, validationResult } = require('express-validator');
 // JWT
 const jwt = require("jsonwebtoken");
 
-// secret key for JWT
-const key = require('../keys');
+// enable reading from .env file
+require("dotenv").config();
+
+// secret for JWT
+const secret = process.env.SECRET;
 
 // passport
 const passport = require("passport");
@@ -131,7 +134,7 @@ module.exports = router.post("/login", [
     // sign token
     jwt.sign(
       payload,
-      key.secret,
+      secret,
       options,
       (err, token) => {
         if (err) {
@@ -229,7 +232,7 @@ module.exports = router.get("/google/redirect",
     // sign token
     jwt.sign(
       payload,
-      key.secret,
+      secret,
       options,
       (err, token) => {
         if (err) {

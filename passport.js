@@ -5,14 +5,15 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const mongoose = require("mongoose");
 const passport = require("passport");
 
-const User = require("./model/userModel");
-const key = require("./keys");
+// enable reading from .env file
+require("dotenv").config();
 
+const User = require("./model/userModel");
 
 // options object for jwt
 const opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = key.secret;
+opts.secretOrKey = process.env.SECRET;
 
 // JWT strategy
 module.exports = passport.use("jwt",
@@ -31,8 +32,8 @@ module.exports = passport.use("jwt",
 
 // options object for google
 const googleOpts = {};
-googleOpts.clientID = key.googleOAuthClientID;
-googleOpts.clientSecret = key.googleOAuthClientSecret;
+googleOpts.clientID = process.env.GOOGLE_OAUTH_CLIENT_ID;
+googleOpts.clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
 googleOpts.callbackURL = "http://localhost:5000/user/google/redirect";
 
 // Google strategy

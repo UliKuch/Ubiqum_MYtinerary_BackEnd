@@ -4,4 +4,4 @@
 /node_modules
 
 # keys
-keys.js
+.env

@@ -8,8 +8,11 @@ const port = process.env.PORT || 5000;
 // passport
 const passport = require("passport");
 
+// enable reading from .env file
+require("dotenv").config();
+
 // database variables
-const db = require("./keys").mongoURI;
+const db = process.env.MONGO_URI;
 const mongoose = require("mongoose");
 
 // middleware
