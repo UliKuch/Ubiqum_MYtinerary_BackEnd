@@ -31,10 +31,11 @@ module.exports = passport.use("jwt",
 
 
 // options object for google
+const url = process.env.URL
 const googleOpts = {};
 googleOpts.clientID = process.env.GOOGLE_OAUTH_CLIENT_ID;
 googleOpts.clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
-googleOpts.callbackURL = "http://localhost:5000/user/google/redirect";
+googleOpts.callbackURL = `${url}/user/google/redirect`;
 
 // Google strategy
 module.exports = passport.use("google",
