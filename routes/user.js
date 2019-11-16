@@ -22,6 +22,8 @@ const secret = process.env.SECRET;
 // passport
 const passport = require("passport");
 
+// front end url for google login
+const frontendUrl = process.env.FRONTENT_URL;
 
 // ********** routes **********
 
@@ -215,7 +217,7 @@ module.exports = router.get("/google/redirect",
   passport.authenticate("google", {
     session: false,
     // TODO: if login was attempted with login page, redirect there
-    failureRedirect: "http://localhost:3000/user/create-account"
+    failureRedirect: `${frontendUrl}/user/create-account`
   }),
 
   (req, res) => {
@@ -237,10 +239,10 @@ module.exports = router.get("/google/redirect",
       (err, token) => {
         if (err) {
           // TODO: think of a way to display error. create error page?
-          res.status(500).redirect("http://localhost:3000");
+          res.status(500).redirect(`${frontendUrl}`);
         } else {
           // redirect to landing page with token stored in url
-          res.status(200).redirect("http://localhost:3000/logged_in/" + token)
+          res.status(200).redirect(`${frontendUrl}/logged_in/${token}`)
         }
       }
     );
