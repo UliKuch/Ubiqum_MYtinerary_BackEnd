@@ -23,7 +23,7 @@ const secret = process.env.SECRET;
 const passport = require("passport");
 
 // front end url for google login
-const frontendUrl = process.env.FRONTENT_URL;
+const frontendUrl = process.env.FRONTEND_URL;
 
 // ********** routes **********
 
